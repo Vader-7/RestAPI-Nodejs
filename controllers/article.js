@@ -156,32 +156,34 @@ const getImage = (req, res) => {
 	let file = req.params.image;
 	let pathFile = `./img/${file}`;
 	fs.access(pathFile, fs.constants.F_OK, (err) => {
-	  if (err) {
-		return res.status(404).json({ message: 'Image not found' });
-	  } else {
-		return res.sendFile(path.resolve(pathFile));
-	  }
+		if (err) {
+			return res.status(404).json({ message: 'Image not found' });
+		} else {
+			return res.sendFile(path.resolve(pathFile));
+		}
 	});
-  };
-  
+};
+
 const searchArticles = (req, res) => {
 	//get search string
-	let searchString = req.params.search;  
+	let searchString = req.params.search;
 	//find OR 
-	Article.find({ "$or": [ 
-	  { "title": { "$regex": searchString, "$options": "i" } }, 
-	  { "content": { "$regex": searchString, "$options": "i" } } ] }).sort({date: -1}).exec((err, articles) => {
-	  if (err) {
-		return res.status(500).json({ message: 'Error fetching articles from database', error: err });
-	  }
-	  if (!articles || articles.length === 0) {
-		return res.status(404).json({ message: 'No articles found' });
-	  } else {
-		return res.status(200).json({ message: 'Articles found', articles });
-	  }
+	Article.find({
+		"$or": [
+			{ "title": { "$regex": searchString, "$options": "i" } },
+			{ "content": { "$regex": searchString, "$options": "i" } }]
+	}).sort({ date: -1 }).exec((err, articles) => {
+		if (err) {
+			return res.status(500).json({ message: 'Error fetching articles from database', error: err });
+		}
+		if (!articles || articles.length === 0) {
+			return res.status(404).json({ message: 'No articles found' });
+		} else {
+			return res.status(200).json({ message: 'Articles found', articles });
+		}
 	});
-  }
-  
+}
+
 
 module.exports = {
 	create,
