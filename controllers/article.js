@@ -8,7 +8,6 @@ const create = (req, res) => {
 	validateArticles(res, params);
 	// create article to save
 	const article = new Article(params);
-
 	// save article to database
 	article.save((err, articleStored) => {
 		if (err) {
