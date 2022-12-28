@@ -94,10 +94,15 @@ const deleteArticle = (req, res) => {
     });
 }
 
+const updateArticle = (req, res) => {
+    let articleId = req.params.id; 
+}
+
 module.exports = {
     create,
     getArticles,
     getOneArticle,
-    deleteArticle
+    deleteArticle,
+    updateArticle
 };
 

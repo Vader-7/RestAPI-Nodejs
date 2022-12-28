@@ -8,6 +8,7 @@ router.post('/create', ArticleController.create);
 router.get('/articles/:lastones?', ArticleController.getArticles);
 router.get('/article/:id', ArticleController.getOneArticle);
 router.delete('/article/:id', ArticleController.deleteArticle);
+router.put('/article/:id', ArticleController.updateArticle);
 
 
 module.exports = router;
