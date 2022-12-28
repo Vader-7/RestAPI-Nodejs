@@ -1,6 +1,7 @@
 const fs = require('fs');
 const Article = require('../models/Article');
-const {validateArticles}  = require('../helpers/validate');
+const { validateArticles } = require('../helpers/validate');
+const path = require('path');
 
 
 const create = (req, res) => {
@@ -113,19 +114,56 @@ const updateArticle = (req, res) => {
 };
 
 const uploadImg = (req, res) => {
-    if(!req.files || Object.keys(req.files).length === 0 || !req.file){
-        return res.status(400).json({ message: 'No files were uploaded' });
-    }
-    let nameFile = req.file.originalname;
-    let ext = nameFile.split('.').pop();
-    if (ext != 'png' && ext != 'jpg' && ext != 'jpeg' && ext != 'gif') {
-        fs.unlink(req.file.path, (err) => {
-            return res.status(400).json({ message: 'Invalid file', error: err });
-        });
-    }else{
-        return res.status(200).json({ message: 'Image uploaded', files: req.file })
-    }
+	if (!req.file) {
+		return res.status(400).json({ message: 'No file uploaded' });
+	}
+
+	let nameFile = req.file.originalname;
+	let ext = nameFile.split('.').pop();
+	if (ext !== 'png' && ext !== 'jpg' && ext !== 'jpeg' && ext !== 'gif') {
+		fs.unlink(req.file.path, (err) => {
+			if (err) {
+				return res.status(500).json({ message: 'Error deleting invalid file', error: err });
+			}
+			return res.status(400).json({ message: 'Invalid file' });
+		});
+	} else {
+		const articleId = req.params.id;
+		// find and update
+		Article.findById(articleId, (err, article) => {
+			if (err) return res.status(500).json({ message: 'Error fetching article from database', error: err });
+			if (!article) {
+				return res.status(404).json({ message: 'Article not found' });
+			}
+			// delete old image file
+			fs.unlink(`./img/${article.image}`, (err) => {
+				if (err) {
+					return res.status(500).json({ message: 'Error deleting old image file', error: err });
+				}
+				// update article with new image
+				Article.findByIdAndUpdate(articleId, { image: req.file.filename }, { new: true }, (err, articleUpdated) => {
+					if (err) {
+						return res.status(500).json({ message: 'Error updating article from database', error: err });
+					}
+					return res.status(200).json({ message: 'Article updated', article: articleUpdated });
+				});
+			});
+		});
+	}
 };
+
+const getImage = (req, res) => {
+	let file = req.params.image;
+	let pathFile = `./img/${file}`;
+	fs.access(pathFile, fs.constants.F_OK, (err) => {
+	  if (err) {
+		return res.status(404).json({ message: 'Image not found' });
+	  } else {
+		return res.sendFile(path.resolve(pathFile));
+	  }
+	});
+  };
+  
 
 module.exports = {
 	create,
@@ -133,5 +171,6 @@ module.exports = {
 	getOneArticle,
 	deleteArticle,
 	updateArticle,
-    uploadImg
+	uploadImg,
+	getImage
 };
