@@ -1,3 +1,4 @@
+const fs = require('fs');
 const Article = require('../models/Article');
 const {validateArticles}  = require('../helpers/validate');
 
@@ -111,10 +112,26 @@ const updateArticle = (req, res) => {
 	});
 };
 
+const uploadImg = (req, res) => {
+    if(!req.files || Object.keys(req.files).length === 0 || !req.file){
+        return res.status(400).json({ message: 'No files were uploaded' });
+    }
+    let nameFile = req.file.originalname;
+    let ext = nameFile.split('.').pop();
+    if (ext != 'png' && ext != 'jpg' && ext != 'jpeg' && ext != 'gif') {
+        fs.unlink(req.file.path, (err) => {
+            return res.status(400).json({ message: 'Invalid file', error: err });
+        });
+    }else{
+        return res.status(200).json({ message: 'Image uploaded', files: req.file })
+    }
+};
+
 module.exports = {
 	create,
 	getArticles,
 	getOneArticle,
 	deleteArticle,
 	updateArticle,
+    uploadImg
 };
