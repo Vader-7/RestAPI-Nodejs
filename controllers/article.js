@@ -5,7 +5,11 @@ const create = (req, res) => {
 	// get data from body
 	let params = req.body;
 	// validate data
-	validateArticles(res, params);
+	try {
+		validateArticles(res, params);
+	} catch (err) {
+		return res.status(400).json({ message: 'Invalid data', error: err });
+	}
 	// create article to save
 	const article = new Article(params);
 	// save article to database
@@ -89,7 +93,11 @@ const updateArticle = (req, res) => {
 	// get body data
 	const params = req.body;
 	// validate data
-	validateArticles(res, params);
+	try {
+		validateArticles(res, params);
+	} catch (err) {
+		return res.status(400).json({ message: 'Invalid data', error: err });
+	}
 	// find and update
 	Article.findByIdAndUpdate(articleId, params, { new: true }, (err, articleUpdated) => {
 		if (err) {
@@ -102,16 +110,12 @@ const updateArticle = (req, res) => {
 	});
 };
 
-const validateArticles = (res, params) => {
-	try {
-		var validate_title = !validator.isEmpty(params.title) && validator.isLength(params.title, { min: 3 });
-		var validate_content = !validator.isEmpty(params.content) && validator.isLength(params.content, { min: 5 });
+const validateArticles = (params) => {
+	var validate_title = !validator.isEmpty(params.title) && validator.isLength(params.title, { min: 3 });
+	var validate_content = !validator.isEmpty(params.content) && validator.isLength(params.content, { min: 5 });
 
-		if (!validate_title || !validate_content) {
-			return res.status(400).json({ message: 'Invalid data' });
-		}
-	} catch (err) {
-		return res.status(400).json({ message: 'Invalid data', error: err });
+	if (!validate_title || !validate_content) {
+		return res.status(400).json({ message: 'Invalid data' });
 	}
 };
 
