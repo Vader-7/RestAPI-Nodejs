@@ -164,6 +164,24 @@ const getImage = (req, res) => {
 	});
   };
   
+const searchArticles = (req, res) => {
+	//get search string
+	let searchString = req.params.search;  
+	//find OR 
+	Article.find({ "$or": [ 
+	  { "title": { "$regex": searchString, "$options": "i" } }, 
+	  { "content": { "$regex": searchString, "$options": "i" } } ] }).sort({date: -1}).exec((err, articles) => {
+	  if (err) {
+		return res.status(500).json({ message: 'Error fetching articles from database', error: err });
+	  }
+	  if (!articles || articles.length === 0) {
+		return res.status(404).json({ message: 'No articles found' });
+	  } else {
+		return res.status(200).json({ message: 'Articles found', articles });
+	  }
+	});
+  }
+  
 
 module.exports = {
 	create,
@@ -172,5 +190,6 @@ module.exports = {
 	deleteArticle,
 	updateArticle,
 	uploadImg,
-	getImage
+	getImage,
+	searchArticles
 };
