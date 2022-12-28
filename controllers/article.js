@@ -1,12 +1,13 @@
-const validator = require('validator');
 const Article = require('../models/Article');
+const {validateArticles}  = require('../helpers/validate');
+
 
 const create = (req, res) => {
 	// get data from body
 	let params = req.body;
 	// validate data
 	try {
-		validateArticles(res, params);
+		validateArticles(params);
 	} catch (err) {
 		return res.status(400).json({ message: 'Invalid data', error: err });
 	}
@@ -94,7 +95,7 @@ const updateArticle = (req, res) => {
 	const params = req.body;
 	// validate data
 	try {
-		validateArticles(res, params);
+		validateArticles(params);
 	} catch (err) {
 		return res.status(400).json({ message: 'Invalid data', error: err });
 	}
@@ -108,15 +109,6 @@ const updateArticle = (req, res) => {
 		}
 		return res.status(200).json({ message: 'Article updated', article: articleUpdated });
 	});
-};
-
-const validateArticles = (params) => {
-	var validate_title = !validator.isEmpty(params.title) && validator.isLength(params.title, { min: 3 });
-	var validate_content = !validator.isEmpty(params.content) && validator.isLength(params.content, { min: 5 });
-
-	if (!validate_title || !validate_content) {
-		return res.status(400).json({ message: 'Invalid data' });
-	}
 };
 
 module.exports = {
