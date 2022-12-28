@@ -95,8 +95,33 @@ const deleteArticle = (req, res) => {
 }
 
 const updateArticle = (req, res) => {
+    //get id
     let articleId = req.params.id; 
+    // get body data
+    let params = req.body;
+    // validate data
+    try {
+        var validate_title = !validator.isEmpty(params.title) && validator.isLength(params.title, { min: 3 });
+        var validate_content = !validator.isEmpty(params.content) && validator.isLength(params.content, { min: 5 });
+
+        if(!validate_title || !validate_content) {
+            return res.status(400).json({ message: "Error", error: "Invalid data" });
+        }
+    } catch(err) {
+        return res.status(400).json({ message: "Error", error: err });
+    }
+    //find and update
+    Article.findByIdAndUpdate({_id: articleId}, params, {new: true}, (err, articleUpdated) => { 
+        if(err) {
+            return res.status(500).json({ message: "Error updating article from database", error: err });
+        } if( !articleUpdated) {
+            return res.status(404).json({ message: "Article not found" });
+        }
+        return res.status(200).json({ message: "Article updated", article: articleUpdated });
+    });
+    //return response
 }
+
 
 module.exports = {
     create,
