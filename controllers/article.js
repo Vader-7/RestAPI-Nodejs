@@ -101,7 +101,7 @@ const updateArticle = (req, res) => {
 	} catch (err) {
 		return res.status(400).json({ message: 'Invalid data', error: err });
 	}
-	//that the body contains the title and content and nothing else
+	//	
 	for (const key of Object.keys(params)) {
 		if (key !== 'title' && key !== 'content') {
 			return res.status(400).json({ message: 'Invalid data' });
