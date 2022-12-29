@@ -2,6 +2,7 @@ const fs = require('fs');
 const Article = require('../models/Article');
 const { validateArticles } = require('../helpers/validate');
 const path = require('path');
+const { update } = require('../models/Article');
 
 
 const create = (req, res) => {
@@ -31,7 +32,6 @@ const create = (req, res) => {
 
 const getArticles = (req, res) => {
 	let consulta = Article.find({});
-
 	if (req.params.lastones) {
 		consulta.limit(parseInt(req.params.lastones));
 	}
@@ -101,6 +101,13 @@ const updateArticle = (req, res) => {
 	} catch (err) {
 		return res.status(400).json({ message: 'Invalid data', error: err });
 	}
+	//that the body contains the title and content and nothing else
+	for (const key of Object.keys(params)) {
+		if (key !== 'title' && key !== 'content') {
+			return res.status(400).json({ message: 'Invalid data' });
+		}
+	}
+	
 	// find and update
 	Article.findByIdAndUpdate(articleId, params, { new: true }, (err, articleUpdated) => {
 		if (err) {
